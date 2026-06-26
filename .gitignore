@@ -1,0 +1,13 @@
+# Backend
+Backend/target/
+Backend/.idea/
+Backend/*.iml
+
+# Frontend
+frontend/pft-UI/node_modules/
+frontend/pft-UI/dist/
+frontend/pft-UI/.angular/
+
+# General
+.env
+*.env
