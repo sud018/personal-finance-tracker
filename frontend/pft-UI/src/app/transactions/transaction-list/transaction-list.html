@@ -1,0 +1,97 @@
+<div class="transactions-page">
+  <div class="page-header">
+    <h1>Transactions</h1>
+    <button class="btn-primary" (click)="openAddForm()">+ Add Transaction</button>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters">
+    <select [(ngModel)]="selectedType" (change)="onFilterChange()">
+      <option value="">All Types</option>
+      <option value="INCOME">Income</option>
+      <option value="EXPENSE">Expense</option>
+    </select>
+
+    <select [(ngModel)]="selectedCategoryId" (change)="onFilterChange()">
+      <option value="">All Categories</option>
+      @for (cat of categories; track cat.id) {
+        <option [value]="cat.id">{{ cat.name }}</option>
+      }
+    </select>
+
+    <input type="date" [(ngModel)]="startDate" (change)="onFilterChange()" placeholder="Start date"/>
+    <input type="date" [(ngModel)]="endDate" (change)="onFilterChange()" placeholder="End date"/>
+
+    <button class="btn-secondary" (click)="clearFilters()">Clear Filters</button>
+  </div>
+
+  <!-- Table -->
+  @if (isLoading) {
+  <app-loading-spinner></app-loading-spinner>
+} @else if (transactions.length === 0) {
+  <app-empty-state
+    icon="💳"
+    title="No transactions yet"
+    message="Add your first transaction to get started!"
+  ></app-empty-state>
+} @else {
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Description</th>
+            <th>Category</th>
+            <th>Type</th>
+            <th>Amount</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (transaction of transactions; track transaction.id) {
+            <tr>
+              <td>{{ transaction.date }}</td>
+              <td>{{ transaction.description || '-' }}</td>
+              <td>{{ transaction.categoryName }}</td>
+              <td>
+                <span class="badge" [class.income]="transaction.type === 'INCOME'" [class.expense]="transaction.type === 'EXPENSE'">
+                  {{ transaction.type }}
+                </span>
+              </td>
+              <td [class.income-amount]="transaction.type === 'INCOME'" [class.expense-amount]="transaction.type === 'EXPENSE'">
+                {{ transaction.type === 'INCOME' ? '+' : '-' }}$ {{ transaction.amount | number:'1.2-2' }}
+              </td>
+              <td>
+                <button class="btn-edit" (click)="openEditForm(transaction)">Edit</button>
+                <button class="btn-delete" (click)="deleteTransaction(transaction.id!)">Delete</button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    @if (!selectedCategoryId && !startDate) {
+      <div class="pagination">
+        <button [disabled]="currentPage === 0" (click)="previousPage()">← Prev</button>
+        <span>Page {{ currentPage + 1 }} of {{ totalPages }}</span>
+        <button [disabled]="currentPage === totalPages - 1" (click)="nextPage()">Next →</button>
+      </div>
+    }
+  }
+
+  <!-- Transaction Form Modal -->
+  @if (showForm) {
+    <div class="modal-overlay" (click)="onFormCancelled()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <app-transaction-form
+          [transaction]="editingTransaction"
+          [categories]="categories"
+          (saved)="onFormSaved()"
+          (cancelled)="onFormCancelled()"
+        ></app-transaction-form>
+      </div>
+    </div>
+  }
+</div>

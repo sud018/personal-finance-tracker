@@ -1,0 +1,99 @@
+<p>budget works!</p>
+<div class="budget-page">
+  <div class="page-header">
+    <h1>Budget</h1>
+    <button class="btn-primary" (click)="openAddForm()">+ Set Budget</button>
+  </div>
+
+  <!-- Month/Year Selector -->
+  <div class="month-selector">
+    <select [(ngModel)]="currentMonth" (change)="onMonthChange()">
+      @for (month of months; track month.value) {
+        <option [value]="month.value">{{ month.label }}</option>
+      }
+    </select>
+    <input type="number" [(ngModel)]="currentYear" (change)="onMonthChange()" min="2020" max="2030"/>
+  </div>
+
+  @if (isLoading) {
+    <div class="loading">Loading budgets...</div>
+  } @else if (budgets.length === 0) {
+    <div class="empty">No budgets set for {{ getMonthName(currentMonth) }} {{ currentYear }}.</div>
+  } @else {
+    <div class="budgets-grid">
+      @for (budget of budgets; track budget.id) {
+        <div class="budget-card">
+          <div class="budget-header">
+            <span class="budget-category">{{ budget.categoryName }}</span>
+            <div class="budget-actions">
+              <button class="btn-edit" (click)="openEditForm(budget)">Edit</button>
+            </div>
+          </div>
+          <div class="budget-amount">
+            <span class="amount-label">Budget</span>
+            <span class="amount-value">$ {{ budget.amount | number:'1.2-2' }}</span>
+          </div>
+          <div class="budget-period">
+            {{ getMonthName(budget.month) }} {{ budget.year }}
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  @if (showForm) {
+    <div class="modal-overlay" (click)="cancelForm()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <h2>{{ editingBudget ? 'Edit Budget' : 'Set Budget' }}</h2>
+
+        <form [formGroup]="form" (ngSubmit)="onSubmit()">
+          <div class="form-group">
+            <label>Category</label>
+            <select formControlName="categoryId">
+              <option value="">Select category</option>
+              @for (cat of categories; track cat.id) {
+                <option [value]="cat.id">{{ cat.name }}</option>
+              }
+            </select>
+            @if (form.get('categoryId')?.invalid && form.get('categoryId')?.touched) {
+              <span class="error">Category is required</span>
+            }
+          </div>
+
+          <div class="form-group">
+            <label>Amount</label>
+            <input type="number" formControlName="amount" placeholder="0.00" step="0.01"/>
+            @if (form.get('amount')?.invalid && form.get('amount')?.touched) {
+              <span class="error">Valid amount is required</span>
+            }
+          </div>
+
+          <div class="form-group">
+            <label>Month</label>
+            <select formControlName="month">
+              @for (month of months; track month.value) {
+                <option [value]="month.value">{{ month.label }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Year</label>
+            <input type="number" formControlName="year" min="2020" max="2030"/>
+          </div>
+
+          @if (errorMessage) {
+            <div class="alert-error">{{ errorMessage }}</div>
+          }
+
+          <div class="form-actions">
+            <button type="button" class="btn-cancel" (click)="cancelForm()">Cancel</button>
+            <button type="submit" class="btn-submit">
+              {{ editingBudget ? 'Update' : 'Set Budget' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+</div>

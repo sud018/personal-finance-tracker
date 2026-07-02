@@ -1,0 +1,80 @@
+<p>category-list works!</p>
+<div class="categories-page">
+  <div class="page-header">
+    <h1>Categories</h1>
+    <button class="btn-primary" (click)="openAddForm()">+ Add Category</button>
+  </div>
+
+  @if (isLoading) {
+    <div class="loading">Loading categories...</div>
+  } @else {
+    <div class="categories-grid">
+      @for (category of categories; track category.id) {
+        <div class="category-card">
+          <div class="category-left">
+            <div class="category-icon" [style.background]="category.color + '20'">
+              <span>{{ category.icon || '📁' }}</span>
+            </div>
+            <div class="category-info">
+              <span class="category-name">{{ category.name }}</span>
+              <span class="category-type" [class.income]="category.type === 'INCOME'" [class.expense]="category.type === 'EXPENSE'">
+                {{ category.type }}
+              </span>
+            </div>
+          </div>
+          <div class="category-actions">
+            <button class="btn-edit" (click)="openEditForm(category)">Edit</button>
+            <button class="btn-delete" (click)="deleteCategory(category.id!)">Delete</button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  @if (showForm) {
+    <div class="modal-overlay" (click)="cancelForm()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <h2>{{ editingCategory ? 'Edit Category' : 'Add Category' }}</h2>
+
+        <form [formGroup]="form" (ngSubmit)="onSubmit()">
+          <div class="form-group">
+            <label>Name</label>
+            <input type="text" formControlName="name" placeholder="Category name"/>
+            @if (form.get('name')?.invalid && form.get('name')?.touched) {
+              <span class="error">Name is required</span>
+            }
+          </div>
+
+          <div class="form-group">
+            <label>Type</label>
+            <select formControlName="type">
+              <option value="EXPENSE">Expense</option>
+              <option value="INCOME">Income</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Color</label>
+            <input type="color" formControlName="color"/>
+          </div>
+
+          <div class="form-group">
+            <label>Icon (emoji)</label>
+            <input type="text" formControlName="icon" placeholder="e.g. 🍔"/>
+          </div>
+
+          @if (errorMessage) {
+            <div class="alert-error">{{ errorMessage }}</div>
+          }
+
+          <div class="form-actions">
+            <button type="button" class="btn-cancel" (click)="cancelForm()">Cancel</button>
+            <button type="submit" class="btn-submit">
+              {{ editingCategory ? 'Update' : 'Add Category' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+</div>
