@@ -5,8 +5,8 @@ services:
     image: postgres:16
     environment:
       POSTGRES_DB: finance_tracker
-      POSTGRES_USER: finance_user
-      POSTGRES_PASSWORD: finance123
+      POSTGRES_USER: ${DATABASE_USERNAME}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
@@ -17,10 +17,10 @@ services:
     ports:
       - "8080:8080"
     environment:
-      DATABASE_URL: jdbc:postgresql://postgres:5432/finance_tracker
-      DATABASE_USERNAME: finance_user
-      DATABASE_PASSWORD: finance123
-      JWT_SECRET: 73756468656572736563726574666F726A7774746F6B656E73666F72746869736170706C69636174696F6E
+      DATABASE_URL: ${DATABASE_URL}
+      DATABASE_USERNAME: ${DATABASE_USERNAME}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
       SPRING_PROFILES_ACTIVE: prod
     depends_on:
       - postgres
